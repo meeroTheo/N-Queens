@@ -18,6 +18,7 @@ public:
         int colVariable;
         initialState(); //initial complete assignment for csp
         for (int i=1;i<max_steps;i++){
+            setConflicts();
             if (isSolution()) return true;  //current state is a solution for csp
             colVariable = colPosition();    //randomly chosen conflicted variable from csp
             currState[colVariable]=minConflictPos(colVariable); //value (row) which minimizes conflicts
@@ -36,7 +37,7 @@ public:
     int colPosition() {
         // random column position given the position has more than 0 conflicts
     }
-    void setConflicts(int var) {
+    void setConflicts() {
         // set of conflicted variables
         for (int i = 0; i < n; i++) {            // for each variable
             conflicts[i] = attacks(currState[i], i); // set conflicts based on attacks, state[i] is the row position
