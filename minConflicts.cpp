@@ -57,8 +57,26 @@ public:
     bool isSolution(){
 
     }
-    void printState(){
+    void printState(int n){
+        //Prints the state in an array form where each index represents board index
+        //Each value represents the row the queen is on
+        for (int i=0; i< n; i++) {
+            cout << currState[i] << " ";
+        }
+        cout << "\n";
+    }
 
+    void printBoard(int currState) {
+        //Prints the board for visualizing and verifying correctness
+        for (int i = 0; i < (sizeof(n)/ sizeof(int)); i++) {
+            for (int n = 0; n <8; n++) {
+            if (n==i) {
+                cout << "Q" << " "; } 
+            else {
+                cout << "X" << " "; }
+                }
+            cout << "\n";
+        }
     }
     ~minConflicts() {
         delete[] currState;
