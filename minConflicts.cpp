@@ -36,7 +36,7 @@ public:
     int colPosition() {
         // random column position given the position has more than 0 conflicts
     }
-    void setConflicts(int var) {
+    void setConflicts() {
         // set of conflicted variables
         for (int i = 0; i < n; i++) {            // for each variable
             conflicts[i] = attacks(currState[i], i); // set conflicts based on attacks, state[i] is the row position
@@ -55,7 +55,15 @@ public:
         return attacks;
     }
     bool isSolution(){
-
+        setConflicts();
+        bool solution = true; 
+        for (int i = 0; i < n; i++) {
+            if (conflicts[i] != 0) {
+                solution = false;
+                break;
+            }
+        }
+        return solution;
     }
     void printState(){
 
