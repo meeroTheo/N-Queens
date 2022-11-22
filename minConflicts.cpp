@@ -56,7 +56,15 @@ public:
         return attacks;
     }
     bool isSolution(){
-
+        setConflicts();
+        bool solution = true; 
+        for (int i = 0; i < n; i++) {
+            if (conflicts[i] != 0) {
+                solution = false;
+                break;
+            }
+        }
+        return solution;
     }
     void printState(int n){
         //Prints the state in an array form where each index represents board index
