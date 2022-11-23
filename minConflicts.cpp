@@ -31,11 +31,16 @@ public:
     }
     void initialState() {
         // modify state
+        for (int i=0;i<n;i++){
+            currState[i]=i;
+        }
+        auto rd = std::random_device{};
+        auto rng = std::default_random_engine{rd()};
+        std::shuffle(currState, currState+n, rng);
     }
     int minConflictPos(int colVariable) {
         int *rowConflicts = new int[n], val;
         std::vector<int> temp;
-        int val;
         for (int i = 0; i < n; i++)
             rowConflicts[i] = attacks(i, colVariable); // array containing all the conflicts at each row at colVariable
         // find min element
