@@ -1,4 +1,7 @@
+#include <algorithm>
 #include <iostream>
+#include <random>
+#include <vector>
 
 using std::cout;
 using std::endl;
@@ -30,10 +33,32 @@ public:
         // modify state
     }
     int minConflictPos(int colVariable) {
-        // row num that has the least number of conflicts
-        // call attacks and put into a list to pick min for rows in range n
-        // like line 11, vconflicts
-        // like line 12 get random pos min(vconflicts)
+        int *rowConflicts = new int[n], val;
+        std::vector<int> temp;
+        int val;
+        for (int i = 0; i < n; i++)
+            rowConflicts[i] = attacks(i, colVariable); // array containing all the conflicts at each row at colVariable
+        // find min element
+        int min = rowConflicts[0];
+        for (int i = 1; i < n; i++) {
+            if (rowConflicts[i] < min)
+                min = rowConflicts[i];
+        }
+        // push all min elements to temp vector
+        for (int i = 0; i < n; i++) {
+            if (rowConflicts[i] == min)
+                temp.push_back(i);
+        }
+        // shuffle vector
+        if (temp.size() != 1) {
+            auto rd = std::random_device{};
+            auto rng = std::default_random_engine{rd()};
+            std::shuffle(temp.begin(), temp.end(), rng);
+        }
+        val = temp[0];
+        delete[] rowConflicts;
+        temp.clear();
+        return val;
     }
     int colPosition() {
         // random column position given the position has more than 0 conflicts
@@ -94,5 +119,7 @@ public:
 };
 
 int main() {
-    minConflicts(8, 10000);
+    // minConflicts(8, 10000);
+    for (int i = 0; i < 10; i++)
+        cout << rand() % 10;
 }
