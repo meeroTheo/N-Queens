@@ -119,7 +119,5 @@ public:
 };
 
 int main() {
-    // minConflicts(8, 10000);
-    for (int i = 0; i < 10; i++)
-        cout << rand() % 10;
+    minConflicts(8, 10000);
 }
