@@ -31,12 +31,12 @@ public:
     }
     void initialState() {
         // modify state
-        for (int i=0;i<n;i++){
-            currState[i]=i;
+        for (int i = 0; i < n; i++) {
+            currState[i] = i;
         }
         auto rd = std::random_device{};
         auto rng = std::default_random_engine{rd()};
-        std::shuffle(currState, currState+n, rng);
+        std::shuffle(currState, currState + n, rng);
     }
     int minConflictPos(int colVariable) {
         int *rowConflicts = new int[n], val;
@@ -66,14 +66,12 @@ public:
         return val;
     }
     int colPosition() {
-        int randCol;
         // random column position given the position has more than 0 conflicts
-        for (int i = 0; i < n-1; i++){
-            if (conflicts[i] == 0) {
-                randCol = random.choice(n-1);
-            }
+        int pos = rand() % n;
+        while (conflicts[pos] <= 0) {
+            pos = rand() % n;
         }
-        return randCol;
+        return pos;
     }
     void setConflicts() {
         // set of conflicted variables
@@ -95,7 +93,7 @@ public:
     }
     bool isSolution() {
         setConflicts();
-        //Checks if there are no conflicts found under the given # of iterations
+        // Checks if there are no conflicts found under the given # of iterations
         for (int i = 0; i < n; i++)
             if (conflicts[i] != 0)
                 return false;
