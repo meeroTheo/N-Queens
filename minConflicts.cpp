@@ -90,6 +90,7 @@ public:
     }
     bool isSolution() {
         setConflicts();
+        //Checks if there are no conflicts found under the given # of iterations
         for (int i = 0; i < n; i++)
             if (conflicts[i] != 0)
                 return false;
