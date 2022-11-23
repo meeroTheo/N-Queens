@@ -16,6 +16,7 @@ private:
 public:
     minConflicts(int size, int max_steps) : n(size) {
         bool solved = solve(max_steps);
+        printBoard();
     }
     bool solve(int max_steps) {
         int colVariable;
@@ -108,15 +109,15 @@ public:
         cout << "\n";
     }
 
-    void printBoard(int currState) {
+    void printBoard() {
         // Prints the board for visualizing and verifying correctness
-        for (int i = 0; i < (sizeof(n) / sizeof(int)); i++) {
-            for (int n = 0; n < 8; n++) {
-                if (n == i) {
+        for (int i = 0; i < n; i++) {
+            for (int j = 0; j < n; j++) {
+                if (currState[j] == i) {
                     cout << "Q"
                          << " ";
                 } else {
-                    cout << "X"
+                    cout << "-"
                          << " ";
                 }
             }
@@ -130,5 +131,5 @@ public:
 };
 
 int main() {
-    minConflicts(8, 10000);
+    minConflicts temp(8, 1000);
 }
