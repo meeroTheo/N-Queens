@@ -61,7 +61,14 @@ public:
         return val;
     }
     int colPosition() {
+        int randCol;
         // random column position given the position has more than 0 conflicts
+        for (int i = 0; i < n-1; i++){
+            if (conflicts[i] == 0) {
+                randCol = random.choice(n-1);
+            }
+        }
+        return randCol;
     }
     void setConflicts() {
         // set of conflicted variables
