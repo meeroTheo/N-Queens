@@ -58,11 +58,11 @@ private:
         //creates children
         for (int i = 0; i < n; i++) {
             if (i > crosspoint) {
-                child1[&i] = indiv2[&i];
-                child2[&i] = indiv1[&i];
+                child1[i] = indiv2[i];
+                child2[i] = indiv1[i];
             } else {
-                child1[&i] = indiv1[&i];
-                child2[&i] = indiv2[&i];
+                child1[i] = indiv1[i];
+                child2[i] = indiv2[i];
             }
         }
 
