@@ -13,6 +13,7 @@ private:
     int *weights;
     long long nCrValue;
     int *solution;
+    int mutation_chance; //integer from 0-100
 
     long long nCr(int n, int r) {
         if (r > n - r)
@@ -51,6 +52,31 @@ private:
     }
     void crossover(int *indiv1, int *indiv2, int *child1, int *child2) {
         //
+        //determines a random crossover point between 1 to n
+        int crosspoint = rand() % n, mutation_score;
+
+        //creates children
+        for (int i = 0; i < n; i++) {
+            if (i > crosspoint) {
+                child1[&i] = indiv2[&i];
+                child2[&i] = indiv1[&i];
+            } else {
+                child1[&i] = indiv1[&i];
+                child2[&i] = indiv2[&i];
+            }
+        }
+
+        //mutates children if applicable
+        for (short child = 1; child <= 2; child++) {
+            mutation_score = rand() % 100 + 1;
+            if (mutation_score <= mutation_chance) {
+                if (child == 1) {
+                    mutation(child1);
+                } else {
+                    mutation(child2);
+                }
+            }
+        }
     }
 
     void mutation(int *individual) {
