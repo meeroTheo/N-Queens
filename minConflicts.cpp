@@ -78,7 +78,7 @@ public:
     void setConflicts() {
         // set of conflicted variables
         for (int i = 0; i < n; i++) {                // for each variable
-            conflicts[i] = attacks(currState[i], i); // set conflicts based on attacks, state[i] is the row position
+            conflicts[i] = attacks(currState[i], i); // set conflicts based on attacks, currState[i] is the row position
         }
     }
     int attacks(int row, int col) {

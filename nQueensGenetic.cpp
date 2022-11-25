@@ -1,7 +1,5 @@
-#include <algorithm>
 #include <iostream>
 #include <random>
-#include <vector>
 
 using std::cout;
 using std::endl;
@@ -10,7 +8,11 @@ using std::string;
 class genetic {
 private:
     int n;
-    int *population;
+    int popS;
+    int **population;
+    int *weights;
+    long long nCrValue;
+    int *solution;
 
     long long nCr(int n, int r) {
         if (r > n - r)
@@ -23,7 +25,7 @@ private:
         }
         return ans;
     }
-    int fitness(int &individual) {
+    int fitness(int *individual) {
         // number of non-attacking pairs of queens we need to maximize
         // the maximum number of non attacking pairs is n choose 2
         // In the case of n = 8, the maximum number of non-attacking pairs is 28
@@ -34,77 +36,99 @@ private:
 
         for (int i = 0; i < n - 1; i++) {
             for (int j = i + 1; j < n; j++) {
-                if (individual[&i] == individual[&j]) // checks if there are queens in the same row and column
+                if (individual[i] == individual[j]) // checks if there are queens in the same row and column
                     attacks++;
             }
         }
         for (int i = 0; i < n - 1; i++) {
             for (int j = i + 1; j < n; j++) {
-                if (individual[&i] - individual[&j] == i - j) // checks if there are queens in the same diagonal
+                if (individual[i] - individual[j] == i - j) // checks if there are queens in the same diagonal
                     attacks++;
             }
         }
         // we take the maximum number of non-attacking pairs and subtract the number of attacking pairs to get the fitness
-        return nCr(n, 2) - attacks;
+        return nCrValue - attacks;
     }
-    void crossover(int &indiv1, int &indiv2, int &child1, int &child2) {
+    void crossover(int *indiv1, int *indiv2, int *child1, int *child2) {
         //
     }
 
-    void mutation(int &individual) {
+    void mutation(int *individual) {
 
         // seed for random number
-        srand((unsigned int) time (NULL));
-        float randNum = (float)rand()/RAND_MAX;
+        srand((unsigned int)time(NULL));
+        float randNum = (float)rand() / RAND_MAX;
 
-        //mutation probability
+        // mutation probability
         float mutProb = 0.2;
 
         if (randNum < mutProb) {
-            int randQueen = rand()%(n)+1;
-            int randPos = rand()%(n)+1;
+            int randQueen = rand() % (n) + 1;
+            int randPos = rand() % (n) + 1;
 
-            //if equal, regenerate new index position
+            // if equal, regenerate new index position
             while (randQueen = randPos) {
-                randPos = rand()%(n)+1;
+                randPos = rand() % (n) + 1;
             }
 
-            individual[&randPos] = randQueen;
-            individual[&randQueen] = randPos;
+            individual[randPos] = randQueen;
+            individual[randQueen] = randPos;
         }
     }
 
-    bool isSolution() {
-        return false;
-    }
-
-    void initialState() {
-    }
     void generatePopulation() {
-        //
-    }
-    void reproduce(int &indiv1, int &indiv2) {
         //
     }
 
 public:
-    int generations;
+    int generations = 0;
 
-    genetic(int n, int popSize) : n(n), population(new int[popSize]) {
-        //
-        int *populationTemp = new int[n];
+    genetic(int n, int popSize, int max) : n(n), popS(popSize), population(new int *[popSize]) {
+        int **populationTemp = new int *[popSize];
+        int *child1, *child2;
+        int fitnessV;
+        weights = new int[popSize];
+        nCrValue = nCr(n, 2);
 
-        population = populationTemp;
+        generatePopulation(); // initial population
+        do {
+            // set weights for each individual in the population
+            for (int i = 0; i < popSize; i++) {
+                fitnessV = fitness(population[i]);
+                if (fitnessV == nCrValue) {
+                    solution = population[i];
+                    goto isSolution;
+                }
+                weights[i] = fitnessV;
+            }
 
+            std::random_device rd;
+            std::mt19937 gen(rd());
+            std::discrete_distribution<int> d(weights, weights + popSize);
+
+            for (int i = 0; i < popSize / 2; i++) {
+                // individual with higher fitness will have a higher prop. of reproducing
+                crossover(population[d(gen)], population[d(gen)], child1, child2);
+                populationTemp[i] = child1;
+                populationTemp[i + 1] = child2;
+            }
+
+            population = populationTemp;
+            generations++;
+        } while (generations <= max);
+    isSolution:
         delete[] populationTemp;
     }
     void printBoard() {
     }
     ~genetic() {
+        for (int i = 0; i < popS; i++)
+            delete[] population[i];
         delete[] population;
+        delete[] weights;
     }
 };
 
 int main() {
-    genetic nQueens(8,5);
+    genetic nQueens(8, 5, 10000);
 }
