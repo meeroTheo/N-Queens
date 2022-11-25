@@ -52,7 +52,26 @@ private:
     }
 
     void mutation(int &individual) {
-        //
+
+        // seed for random number
+        srand((unsigned int) time (NULL));
+        float randNum = (float)rand()/RAND_MAX;
+
+        //mutation probability
+        float mutProb = 0.2;
+
+        if (randNum < mutProb) {
+            int randQueen = rand()%(n)+1;
+            int randPos = rand()%(n)+1;
+
+            //if equal, regenerate new index position
+            while (randQueen = randPos) {
+                randPos = rand()%(n)+1;
+            }
+
+            individual[&randPos] = randQueen;
+            individual[&randQueen] = randPos;
+        }
     }
 
     bool isSolution() {
