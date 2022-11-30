@@ -144,23 +144,25 @@ public:
                 std::random_device rd;
                 std::mt19937 gen(rd());
                 std::discrete_distribution<int> d(weights, weights + popSize);
-                int *child1 = new int[n], *child2 = new int[n];
-                for (int i = 0; i < popSize / 2; i++) {
+                for (int i = 0; i < popSize; i+=2) {
                     // individual with higher fitness will have a higher prop. of reproducing
-                    crossover(population[d(gen)], population[d(gen)], child1, child2);
-                    populationTemp[i] = child1;
-                    populationTemp[i + 1] = child2;
+                    populationTemp[i] = new int[n];
+                    populationTemp[i + 1] = new int[n];
+                    crossover(population[d(gen)], population[d(gen)], populationTemp[i], populationTemp[i+1]);
                 }
 
                 population = populationTemp;
                 populationTemp = new int *[popSize];
                 generations++;
-                printBoard(population[0]);
             } while (generations <= max);
         isSolution:
-            cout << generations << std::endl;
+            cout << "Generations: " << generations << std::endl;
             if (isSolved)
                 cout << "solved" << endl;
+            else{
+                printBoard(population[0]);
+                cout << "not solved" << endl;
+            }
             delete[] populationTemp;
         } catch (std::exception &e) {
             cout << "error: " << e.what();
@@ -189,5 +191,5 @@ public:
 };
 
 int main() {
-    genetic nQueens(20, 10,80, 100000);
+    genetic nQueens(8, 10,80, 100000);
 }
