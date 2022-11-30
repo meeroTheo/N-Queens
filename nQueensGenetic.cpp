@@ -39,16 +39,17 @@ private:
         // an individual is a list of n numbers where each number represents the row of a queen in a column as the index
         int attacks = 0;
 
-        for (int i = 0; i < n - 1; i++) {
+        for (int i = 0; i < n; i++) {
             for (int j = i + 1; j < n; j++) {
-                if (individual[i] == individual[j]) // checks if there are queens in the same row and column
+                if (individual[i] == individual[j]) { // checks if two queens are in the same row/column
                     attacks++;
-            }
-        }
-        for (int i = 0; i < n - 1; i++) {
-            for (int j = i + 1; j < n; j++) {
-                if (individual[i] - individual[j] == i - j) // checks if there are queens in the same diagonal
+                }
+                if (individual[i] == individual[j] + (j - i)) { // checks if two queens are in the same diagonal direction (top left to bottom right)
                     attacks++;
+                }
+                if (individual[i] == individual[j] - (j - i)) { // checks if two queens are in the same diagonal direction (bottom left to top right)
+                    attacks++;
+                }
             }
         }
         // we take the maximum number of non-attacking pairs and subtract the number of attacking pairs to get the fitness
@@ -123,6 +124,8 @@ public:
 
     genetic(int n, int popSize, int mc,int max) : n(n), popS(popSize), mutation_chance(mc) {
         try {
+            std::random_device rd;
+            std::mt19937 gen(rd());
             population.reserve(popS);
             vector<vector<int>> populationTemp;
             population.reserve(popS);
@@ -148,8 +151,6 @@ public:
                     weights.push_back(fitnessV);
                 }
 
-                std::random_device rd;
-                std::mt19937 gen(rd());
                 std::discrete_distribution<int> d(weights.begin(), weights.end());
                 for (int i = 0; i < popSize; i+=2) {
                     // individual with higher fitness will have a higher prop. of reproducing
@@ -190,5 +191,5 @@ public:
 };
 
 int main() {
-    genetic nQueens(8, 10,80, 100000);
+    genetic nQueens(8, 100,80, 100000);
 }
