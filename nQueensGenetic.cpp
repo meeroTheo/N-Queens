@@ -2,19 +2,21 @@
 #include <exception>
 #include <iostream>
 #include <random>
+#include <vector>
 
 using std::cout;
 using std::endl;
 using std::string;
+using std::vector;
 
 class genetic {
 private:
     int n;
     int popS;
-    int **population;
-    int *weights;
+    vector<vector<int>> population;
+    vector<int> weights;
     long long nCrValue;
-    int *solution;
+    vector<int> solution;
     int mutation_chance; // integer from 0-100
 
     long long nCr(int n, int r) {
@@ -28,7 +30,7 @@ private:
         }
         return ans;
     }
-    int fitness(int *individual) {
+    int fitness(vector<int> &individual) {
         // number of non-attacking pairs of queens we need to maximize
         // the maximum number of non attacking pairs is n choose 2
         // In the case of n = 8, the maximum number of non-attacking pairs is 28
@@ -52,7 +54,7 @@ private:
         // we take the maximum number of non-attacking pairs and subtract the number of attacking pairs to get the fitness
         return nCrValue - attacks;
     }
-    void crossover(int *indiv1, int *indiv2, int *child1, int *child2) {
+    void crossover(vector<int> &indiv1, vector<int> &indiv2, vector<int> &child1, vector<int> &child2) {
         //
         // determines a random crossover point between 1 to n
         int crosspoint = rand() % n, mutation_score;
@@ -81,7 +83,7 @@ private:
         }
     }
 
-    void mutation(int *individual) {
+    void mutation(vector<int> &individual) {
 
         // seed for random number
         srand((unsigned int)time(NULL));
@@ -108,23 +110,28 @@ private:
         auto rd = std::random_device{};
         auto rng = std::default_random_engine{rd()};
         for (int j = 0; j < popS; j++) {
-            population[j] = new int[n];
+            population.emplace_back(vector<int>(n));
             for (int i = 0; i < n; i++) {
                 population[j][i] = i;
             }
-            std::shuffle(population[j], population[j] + n, rng);
+            std::shuffle(population[j].begin(), population[j].end(), rng);
         }
     }
 
 public:
-    int generations = 0;
+    int generations = 1;
 
-    genetic(int n, int popSize, int mc,int max) : n(n), popS(popSize), mutation_chance(mc) ,population(new int *[popSize]) {
+    genetic(int n, int popSize, int mc,int max) : n(n), popS(popSize), mutation_chance(mc) {
         try {
-            int **populationTemp = new int *[popSize];
+            population.reserve(popS);
+            vector<vector<int>> populationTemp;
+            population.reserve(popS);
+            for (int i=0;i<popS;++i){
+                populationTemp.emplace_back(vector<int>(n));
+            }
             int fitnessV;
             bool isSolved = false;
-            weights = new int[popSize];
+            weights.reserve(popS);
             nCrValue = nCr(n, 2);
 
             generatePopulation(); // initial population
@@ -138,24 +145,23 @@ public:
                         isSolved = true;
                         goto isSolution;
                     }
-                    weights[i] = fitnessV;
+                    weights.push_back(fitnessV);
                 }
 
                 std::random_device rd;
                 std::mt19937 gen(rd());
-                std::discrete_distribution<int> d(weights, weights + popSize);
+                std::discrete_distribution<int> d(weights.begin(), weights.end());
                 for (int i = 0; i < popSize; i+=2) {
                     // individual with higher fitness will have a higher prop. of reproducing
-                    populationTemp[i] = new int[n];
-                    populationTemp[i + 1] = new int[n];
                     crossover(population[d(gen)], population[d(gen)], populationTemp[i], populationTemp[i+1]);
                 }
 
                 population = populationTemp;
-                populationTemp = new int *[popSize];
                 generations++;
+                weights.clear();
             } while (generations <= max);
         isSolution:
+            populationTemp.clear();
             cout << "Generations: " << generations << std::endl;
             if (isSolved)
                 cout << "solved" << endl;
@@ -163,12 +169,11 @@ public:
                 printBoard(population[0]);
                 cout << "not solved" << endl;
             }
-            delete[] populationTemp;
         } catch (std::exception &e) {
             cout << "error: " << e.what();
         }
     }
-    void printBoard(int *indiv) {
+    void printBoard(vector<int> &indiv) {
         for (int i = 0; i < n; i++) {
             for (int j = 0; j < n; j++) {
                 if (indiv[j] == i) {
@@ -181,12 +186,6 @@ public:
             }
             cout << "\n";
         }
-    }
-    ~genetic() {
-        for (int i = 0; i < popS; i++)
-            delete[] population[i];
-        delete[] population;
-        delete[] weights;
     }
 };
 
