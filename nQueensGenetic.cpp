@@ -134,8 +134,9 @@ public:
                     fitnessV = fitness(population[i]);
                     if (fitnessV == nCrValue) {
                         solution = population[i];
-                        goto isSolution;
+                        printBoard(population[i]);
                         isSolved = true;
+                        goto isSolution;
                     }
                     weights[i] = fitnessV;
                 }
@@ -187,5 +188,5 @@ public:
 };
 
 int main() {
-    genetic nQueens(4, 50, 100000);
+    genetic nQueens(8, 50, 100000);
 }
