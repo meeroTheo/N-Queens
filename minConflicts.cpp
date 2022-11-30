@@ -16,7 +16,7 @@ private:
 public:
     minConflicts(int size, int max_steps) : n(size) {
         bool solved = solve(max_steps);
-        cout << solved;
+        cout << solved << '\n';
         printBoard();
     }
     bool solve(int max_steps) {
@@ -130,7 +130,8 @@ public:
         delete[] conflicts;
     }
 };
-
+/*
 int main() {
-    minConflicts temp(1000, 100000);
+    minConflicts temp(30, 100000);
 }
+*/
