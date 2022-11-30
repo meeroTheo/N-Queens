@@ -119,7 +119,7 @@ private:
 public:
     int generations = 0;
 
-    genetic(int n, int popSize, int max) : n(n), popS(popSize), population(new int *[popSize]) {
+    genetic(int n, int popSize, int mc,int max) : n(n), popS(popSize), mutation_chance(mc) ,population(new int *[popSize]) {
         try {
             int **populationTemp = new int *[popSize];
             int fitnessV;
@@ -153,6 +153,7 @@ public:
                 }
 
                 population = populationTemp;
+                populationTemp = new int *[popSize];
                 generations++;
                 printBoard(population[0]);
             } while (generations <= max);
@@ -188,5 +189,5 @@ public:
 };
 
 int main() {
-    genetic nQueens(8, 50, 100000);
+    genetic nQueens(20, 10,80, 100000);
 }
