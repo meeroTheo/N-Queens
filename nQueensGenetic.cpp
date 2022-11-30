@@ -86,25 +86,15 @@ private:
 
     void mutation(vector<int> &individual) {
 
-        // seed for random number
-        srand((unsigned int)time(NULL));
-        float randNum = (float)rand() / RAND_MAX;
+        int randQueen = rand() % n;
+        int randPos = rand() % n;
 
-        // mutation probability
-        float mutProb = 0.2;
-
-        if (randNum < mutProb) {
-            int randQueen = rand() % (n) + 1;
-            int randPos = rand() % (n) + 1;
-
-            // if equal, regenerate new index position
-            while (randQueen = randPos) {
-                randPos = rand() % (n) + 1;
-            }
-
-            individual[randPos] = randQueen;
-            individual[randQueen] = randPos;
+        // if equal, regenerate new index position
+        while (randQueen == randPos) {
+            randPos = rand() % n;
         }
+
+        individual[randPos] = randQueen;
     }
 
     void generatePopulation() {
@@ -156,8 +146,11 @@ public:
                     // individual with higher fitness will have a higher prop. of reproducing
                     crossover(population[d(gen)], population[d(gen)], populationTemp[i], populationTemp[i+1]);
                 }
-
-                population = populationTemp;
+                for(int i=0;i<popS;i++){
+                    for(int j=0;j<n;j++){
+                        population[i][j]=populationTemp[i][j];
+                    }
+                }
                 generations++;
                 weights.clear();
             } while (generations <= max);
@@ -191,5 +184,5 @@ public:
 };
 
 int main() {
-    genetic nQueens(8, 100,80, 100000);
+    genetic nQueens(8, 150,80, 10000);
 }
