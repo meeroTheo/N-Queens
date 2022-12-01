@@ -218,6 +218,6 @@ public:
     }
 };
 
-// int main() {
-// genetic nQueens(700, 100, 80, 4, 10000);
-//}
+int main() {
+    genetic nQueens(100, 100, 80, 4, 10000);
+}

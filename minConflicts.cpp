@@ -147,6 +147,6 @@ public:
     }
 };
 
-int main() {
-    minConflicts temp(10000, 100000);
-}
+// int main() {
+//   minConflicts temp(10000, 100000);
+//}
