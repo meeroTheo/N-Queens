@@ -4,6 +4,7 @@
 #include <math.h>
 #include <random>
 #include <vector>
+#include <fstream>
 
 using std::cout;
 using std::endl;
@@ -197,18 +198,23 @@ public:
         }
     }
     void printBoard(vector<int> &indiv) {
+        //Create output text file
+        std::ofstream outputFile("output.txt");
         for (int i = 0; i < n; i++) {
             for (int j = 0; j < n; j++) {
                 if (indiv[j] == i) {
-                    cout << "Q"
+                   //Writing to file
+                    outputFile << "Q"
                          << " ";
                 } else {
-                    cout << "-"
+                    outputFile << "-"
                          << " ";
                 }
             }
-            cout << "\n";
+            outputFile << "\n";
         }
+        //Close file
+        outputFile.close();
     }
 };
 
