@@ -43,24 +43,48 @@ private:
         // [1,1,1,2,2,2] - [1,2] => 4 clashes
         // we want the # of attacking pairs of queens to be zero in the solution
         // an individual is a list of n numbers where each number represents the row of a queen in a column as the index
-        int attacks = 0;
+        int row_freq[n] = {0};
+        int diag_freq1[2 * n] = {0};
+        int diag_freq2[2 * n] = {0};
 
         for (int i = 0; i < n; i++) {
-            for (int j = i + 1; j < n; j++) {
-                if (individual[i] == individual[j]) { // checks if two queens are in the same row/column
-                    attacks++;
-                }
-                if (individual[i] == individual[j] + (j - i)) { // checks if two queens are in the same diagonal direction (top left to bottom right)
-                    attacks++;
-                }
-                if (individual[i] == individual[j] - (j - i)) { // checks if two queens are in the same diagonal direction (bottom left to top right)
-                    attacks++;
-                }
+            row_freq[individual[i]]++;
+            diag_freq1[individual[i] + i]++;
+            diag_freq2[n - individual[i] + i]++;
+        }
+
+        int total_attacks = 0;
+        for (int i = 0; i < 2 * n; i++) {
+            if (i < n) {
+                total_attacks += row_freq[i] * (row_freq[i] - 1) / 2;
+                total_attacks += diag_freq1[i] * (diag_freq1[i] - 1) / 2;
+                total_attacks += diag_freq2[i] * (diag_freq2[i] - 1) / 2;
             }
         }
-        // we take the maximum number of non-attacking pairs and subtract the number of attacking pairs to get the fitness
-        return attacks;
+        return total_attacks;
     }
+
+    /*
+
+    int attacks = 0;
+
+    for (int i = 0; i < n; i++) {
+        for (int j = i + 1; j < n; j++) {
+            if (individual[i] == individual[j]) { // checks if two queens are in the same row/column
+                attacks++;
+            }
+            if (individual[i] == individual[j] + (j - i)) { // checks if two queens are in the same diagonal direction (top left to bottom right)
+                attacks++;
+            }
+            if (individual[i] == individual[j] - (j - i)) { // checks if two queens are in the same diagonal direction (bottom left to top right)
+                attacks++;
+            }
+        }
+    }
+    // we take the maximum number of non-attacking pairs and subtract the number of attacking pairs to get the fitness
+    return attacks;
+    */
+
     void crossover(vector<int> &indiv1, vector<int> &indiv2, vector<int> &child1, vector<int> &child2) {
         //
         // determines a random crossover point between 1 to n

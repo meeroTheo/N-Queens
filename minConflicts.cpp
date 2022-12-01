@@ -17,7 +17,7 @@ public:
     minConflicts(int size, int max_steps) : n(size) {
         bool solved = solve(max_steps);
         cout << solved << '\n';
-        printBoard();
+        // printBoard();
     }
     bool solve(int max_steps) {
         int colVariable;
@@ -77,12 +77,28 @@ public:
     }
     void setConflicts() {
         // set of conflicted variables
-        for (int i = 0; i < n; i++) {                // for each variable
-            conflicts[i] = attacks(currState[i], i); // set conflicts based on attacks, currState[i] is the row position
+        // number of attacks
+        // store the number of queens in each column, diagonal, and anti-diagonal
+        int colCount[n] = {0};
+        int diagCount[2 * n - 1] = {0};
+        int antiDiagCount[2 * n - 1] = {0};
+
+        // count the number of queens
+        for (int i = 0; i < n; i++) {
+            colCount[currState[i]]++;
+            diagCount[i + currState[i]]++;
+            antiDiagCount[i - currState[i] + n - 1]++;
+        }
+        // count the number of conflicts
+        for (int i = 0; i < n; i++) {
+            conflicts[i] = colCount[currState[i]] - 1 + diagCount[i + currState[i]] - 1 + antiDiagCount[i - currState[i] + n - 1] - 1;
         }
     }
     int attacks(int row, int col) {
-        // number of attacks
+
+        // return the total number of attacks
+        // return colCount[row] + diagCount[col + row] + antiDiagCount[col - row + n - 1];
+
         int attacks = 0;
         for (int i = 0; i < n; i++) {
             if (i != col) {
@@ -94,8 +110,8 @@ public:
         return attacks;
     }
     bool isSolution() {
-        setConflicts();
-        // Checks if there are no conflicts found under the given # of iterations
+        // setConflicts();
+        //  Checks if there are no conflicts found under the given # of iterations
         for (int i = 0; i < n; i++)
             if (conflicts[i] != 0)
                 return false;
@@ -130,8 +146,7 @@ public:
         delete[] conflicts;
     }
 };
-/*
-int main() {
-    minConflicts temp(30, 100000);
-}
-*/
+
+// int main() {
+//   minConflicts temp(10000, 100000);
+//}
