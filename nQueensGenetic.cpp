@@ -1,6 +1,7 @@
 #include <algorithm>
 #include <exception>
 #include <iostream>
+#include <math.h>
 #include <random>
 #include <vector>
 
@@ -9,27 +10,31 @@ using std::endl;
 using std::string;
 using std::vector;
 
+struct individual {
+    int fitness;
+    vector<int> indiv;
+    individual(int attacks, int size) : fitness(attacks), indiv(size) {
+        indiv.reserve(size);
+    }
+    bool operator<(const individual &rhs) {
+        return fitness < rhs.fitness;
+    }
+    bool operator==(const individual &rhs) {
+        return fitness == rhs.fitness;
+    }
+    bool operator>(const individual &rhs) {
+        return fitness > rhs.fitness;
+    }
+};
+
 class genetic {
 private:
     int n;
     int popS;
-    vector<vector<int>> population;
-    vector<int> weights;
-    long long nCrValue;
+    vector<individual> population;
     vector<int> solution;
     int mutation_chance; // integer from 0-100
 
-    long long nCr(int n, int r) {
-        if (r > n - r)
-            r = n - r; // because C(n, r) == C(n, n - r)
-        long long ans = 1;
-        int i;
-        for (i = 1; i <= r; i++) {
-            ans *= n - r + i;
-            ans /= i;
-        }
-        return ans;
-    }
     int fitness(vector<int> &individual) {
         // number of non-attacking pairs of queens we need to maximize
         // the maximum number of non attacking pairs is n choose 2
@@ -53,7 +58,7 @@ private:
             }
         }
         // we take the maximum number of non-attacking pairs and subtract the number of attacking pairs to get the fitness
-        return nCrValue - attacks;
+        return attacks;
     }
     void crossover(vector<int> &indiv1, vector<int> &indiv2, vector<int> &child1, vector<int> &child2) {
         //
@@ -101,66 +106,66 @@ private:
         auto rd = std::random_device{};
         auto rng = std::default_random_engine{rd()};
         for (int j = 0; j < popS; j++) {
-            population.emplace_back(vector<int>(n));
+            population.emplace_back(individual(0, n));
             for (int i = 0; i < n; i++) {
-                population[j][i] = i;
+                population[j].indiv.push_back(i);
             }
-            std::shuffle(population[j].begin(), population[j].end(), rng);
+            std::shuffle(population[j].indiv.begin(), population[j].indiv.end(), rng);
         }
     }
 
 public:
     int generations = 1;
 
-    genetic(int n, int popSize, int mc,int max) : n(n), popS(popSize), mutation_chance(mc) {
+    genetic(int n, int popSize, int mc, int exp, int max) : n(n), popS(popSize), mutation_chance(mc) {
         try {
-            std::random_device rd;
-            std::mt19937 gen(rd());
-            population.reserve(popS);
-            vector<vector<int>> populationTemp;
-            population.reserve(popS);
-            for (int i=0;i<popS;++i){
-                populationTemp.emplace_back(vector<int>(n));
-            }
-            int fitnessV;
+            std::default_random_engine generator;
+            std::uniform_real_distribution<double> distribution(0.0,1.0);
+            int ind1, ind2;
+            double r,fitnessV;
             bool isSolved = false;
-            weights.reserve(popS);
-            nCrValue = nCr(n, 2);
+            population.reserve(popS);
+            vector<individual> populationTemp;
+            population.reserve(popS);
+            for (int i = 0; i < popS; ++i) {
+                populationTemp.emplace_back(individual(0, n));
+            }
 
             generatePopulation(); // initial population
             do {
                 // set weights for each individual in the population
                 for (int i = 0; i < popSize; i++) {
-                    fitnessV = fitness(population[i]);
-                    if (fitnessV == nCrValue) {
-                        solution = population[i];
-                        printBoard(population[i]);
+                    fitnessV = fitness(population[i].indiv);
+                    population[i].fitness = fitnessV;
+                    if (fitnessV == 0) {
+                        solution = population[i].indiv;
+                        printBoard(population[i].indiv);
                         isSolved = true;
                         goto isSolution;
                     }
-                    weights.push_back(fitnessV);
                 }
+                std::sort_heap(population.begin(), population.end());
 
-                std::discrete_distribution<int> d(weights.begin(), weights.end());
-                for (int i = 0; i < popSize; i+=2) {
+                for (int i = 0; i < popSize; i += 2) {
+                    ind1=popSize*(pow(distribution(generator),exp));
+                    ind2=popSize*(pow(distribution(generator),exp));
                     // individual with higher fitness will have a higher prop. of reproducing
-                    crossover(population[d(gen)], population[d(gen)], populationTemp[i], populationTemp[i+1]);
+                    crossover(population[ind1].indiv, population[ind2].indiv, populationTemp[i].indiv, populationTemp[i + 1].indiv);
                 }
-                for(int i=0;i<popS;i++){
-                    for(int j=0;j<n;j++){
-                        population[i][j]=populationTemp[i][j];
+                for (int i = 0; i < popS; i++) {
+                    for (int j = 0; j < n; j++) {
+                        population[i] = populationTemp[i];
                     }
                 }
                 generations++;
-                weights.clear();
             } while (generations <= max);
         isSolution:
             populationTemp.clear();
             cout << "Generations: " << generations << std::endl;
             if (isSolved)
                 cout << "solved" << endl;
-            else{
-                printBoard(population[0]);
+            else {
+                printBoard(population[0].indiv);
                 cout << "not solved" << endl;
             }
         } catch (std::exception &e) {
@@ -184,5 +189,5 @@ public:
 };
 
 int main() {
-    genetic nQueens(8, 150,80, 10000);
+    genetic nQueens(100, 100, 80, 4, 10000);
 }
