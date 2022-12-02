@@ -217,7 +217,8 @@ public:
         outputFile.close();
     }
 };
-
+/*
 int main() {
     genetic nQueens(100, 100, 80, 4, 10000);
 }
+*/

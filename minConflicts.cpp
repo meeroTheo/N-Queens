@@ -1,4 +1,5 @@
 #include <algorithm>
+#include <fstream>
 #include <iostream>
 #include <random>
 #include <vector>
@@ -17,7 +18,7 @@ public:
     minConflicts(int size, int max_steps) : n(size) {
         bool solved = solve(max_steps);
         cout << solved << '\n';
-        // printBoard();
+        printBoard();
     }
     bool solve(int max_steps) {
         int colVariable;
@@ -43,30 +44,38 @@ public:
     int minConflictPos(int colVariable) {
         int *rowConflicts = new int[n], val;
         std::vector<int> temp;
-        for (int i = 0; i < n; i++)
-            rowConflicts[i] = attacks(i, colVariable); // array containing all the conflicts at each row at colVariable
-        // find min element
-        int min = rowConflicts[0];
+        int min = attacks(0, colVariable), newVal, minCount = 1, pos = 0;
+        rowConflicts[0] = min;
         for (int i = 1; i < n; i++) {
-            if (rowConflicts[i] < min)
-                min = rowConflicts[i];
+            newVal = attacks(i, colVariable);
+            rowConflicts[i] = newVal; // array containing all the conflicts at each row at colVariable
+            if (newVal < min) {       // find min element
+                min = newVal;
+                minCount = 1;
+                pos = i;
+            } else if (newVal == min)
+                minCount++;
         }
+        val = pos;
         // push all min elements to temp vector
-        for (int i = 0; i < n; i++) {
-            if (rowConflicts[i] == min)
-                temp.push_back(i);
+        if (minCount != 1) {
+            for (int i = 0; i < n; i++) {
+                if (rowConflicts[i] == min)
+                    temp.push_back(i);
+            }
+            // shuffle vector
+            if (temp.size() != 1) {
+                auto rd = std::random_device{};
+                auto rng = std::default_random_engine{rd()};
+                std::shuffle(temp.begin(), temp.end(), rng);
+            }
+            val = temp[0];
         }
-        // shuffle vector
-        if (temp.size() != 1) {
-            auto rd = std::random_device{};
-            auto rng = std::default_random_engine{rd()};
-            std::shuffle(temp.begin(), temp.end(), rng);
-        }
-        val = temp[0];
         delete[] rowConflicts;
         temp.clear();
         return val;
     }
+
     int colPosition() {
         // random column position given the position has more than 0 conflicts
         int pos = rand() % n;
@@ -127,19 +136,23 @@ public:
     }
 
     void printBoard() {
-        // Prints the board for visualizing and verifying correctness
+        // Create output text file
+        std::ofstream outputFile("output.txt");
         for (int i = 0; i < n; i++) {
             for (int j = 0; j < n; j++) {
                 if (currState[j] == i) {
-                    cout << "Q"
-                         << " ";
+                    // Writing to file
+                    outputFile << "Q"
+                               << " ";
                 } else {
-                    cout << "-"
-                         << " ";
+                    outputFile << "-"
+                               << " ";
                 }
             }
-            cout << "\n";
+            outputFile << "\n";
         }
+        // Close file
+        outputFile.close();
     }
     ~minConflicts() {
         delete[] currState;
@@ -147,6 +160,6 @@ public:
     }
 };
 
-// int main() {
-//   minConflicts temp(10000, 100000);
-//}
+int main() {
+    minConflicts temp(100, 100000);
+}
