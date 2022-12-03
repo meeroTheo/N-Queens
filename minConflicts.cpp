@@ -12,25 +12,55 @@ class minConflicts {
 private:
     int n;                       // number of queens / board size
     int *currState = new int[n]; // state of the board
-    int *conflicts = new int[n]; // number of conflicts for each queen
+    int *rowCount = new int[n]();
+    int *diagCount = new int[2 * n - 1]();
+    int *antiDiagCount = new int[2 * n - 1]();
+    int numConflicts = 0;
 
 public:
     minConflicts(int size, int max_steps) : n(size) {
+        clock_t start, end;
+        start = clock();
         bool solved = solve(max_steps);
-        cout << solved << '\n';
-        printBoard();
+        end = clock();
+        double time_taken = double(end - start) / double(CLOCKS_PER_SEC);
+        if (solved) {
+            cout << "Solved board of size " << n << " in: " << time_taken << " seconds\n";
+            cout << "Printing time: ";
+            start = clock();
+            printBoard();
+            end = clock();
+            cout << double(end - start) / double(CLOCKS_PER_SEC) << " seconds\n";
+        } else
+
+            cout << "could not solve: " << time_taken << " seconds\n";
     }
     bool solve(int max_steps) {
-        int colVariable;
+        int colVariable, rowVariable;
         initialState(); // initial complete assignment for csp
         for (int i = 1; i < max_steps; i++) {
-            setConflicts();
-            if (isSolution())
-                return true;                                      // current state is a solution for csp
-            colVariable = colPosition();                          // randomly chosen conflicted variable from csp
-            currState[colVariable] = minConflictPos(colVariable); // value (row) which minimizes conflicts
+            if (numConflicts == 0)
+                return true;                           // current state is a solution for csp
+            colVariable = colPosition();               // randomly chosen conflicted variable from csp
+            rowVariable = minConflictPos(colVariable); // value (row) which minimizes conflicts
+            updateConflicts(currState[colVariable], rowVariable, colVariable);
         }
         return false;
+    }
+
+    void updateConflicts(int oldRow, int newRow, int col) {
+        rowCount[currState[col]]--;
+        diagCount[col + currState[col]]--;
+        antiDiagCount[col - currState[col] + n - 1]--;
+
+        currState[col] = newRow;
+        rowCount[currState[col]]++;
+        diagCount[col + currState[col]]++;
+        antiDiagCount[col - currState[col] + n - 1]++;
+        numConflicts = 0;
+        for (int i = 0; i < n; i++) {
+            numConflicts += rowCount[currState[i]] - 1 + diagCount[i + currState[i]] - 1 + antiDiagCount[i - currState[i] + n - 1] - 1;
+        }
     }
     void initialState() {
         // modify state
@@ -40,6 +70,7 @@ public:
         auto rd = std::random_device{};
         auto rng = std::default_random_engine{rd()};
         std::shuffle(currState, currState + n, rng);
+        setConflicts();
     }
     int minConflictPos(int colVariable) {
         int *rowConflicts = new int[n], val;
@@ -79,7 +110,7 @@ public:
     int colPosition() {
         // random column position given the position has more than 0 conflicts
         int pos = rand() % n;
-        while (conflicts[pos] <= 0) {
+        while (attacks(currState[pos], pos) <= 0) {
             pos = rand() % n;
         }
         return pos;
@@ -88,43 +119,21 @@ public:
         // set of conflicted variables
         // number of attacks
         // store the number of queens in each column, diagonal, and anti-diagonal
-        int colCount[n] = {0};
-        int diagCount[2 * n - 1] = {0};
-        int antiDiagCount[2 * n - 1] = {0};
 
         // count the number of queens
         for (int i = 0; i < n; i++) {
-            colCount[currState[i]]++;
+            rowCount[currState[i]]++;
             diagCount[i + currState[i]]++;
             antiDiagCount[i - currState[i] + n - 1]++;
         }
         // count the number of conflicts
         for (int i = 0; i < n; i++) {
-            conflicts[i] = colCount[currState[i]] - 1 + diagCount[i + currState[i]] - 1 + antiDiagCount[i - currState[i] + n - 1] - 1;
+            numConflicts += rowCount[currState[i]] - 1 + diagCount[i + currState[i]] - 1 + antiDiagCount[i - currState[i] + n - 1] - 1;
         }
     }
     int attacks(int row, int col) {
-
-        // return the total number of attacks
-        // return colCount[row] + diagCount[col + row] + antiDiagCount[col - row + n - 1];
-
-        int attacks = 0;
-        for (int i = 0; i < n; i++) {
-            if (i != col) {
-                if (currState[i] == row || abs(i - col) == abs(currState[i] - row)) {
-                    attacks++;
-                }
-            }
-        }
-        return attacks;
-    }
-    bool isSolution() {
-        // setConflicts();
-        //  Checks if there are no conflicts found under the given # of iterations
-        for (int i = 0; i < n; i++)
-            if (conflicts[i] != 0)
-                return false;
-        return true;
+        return rowCount[row] - 1 + diagCount[col + row] - 1 + antiDiagCount[col - row + n - 1] - 1;
+        ;
     }
     void printState(int n) {
         // Prints the state in an array form where each index represents board index
@@ -156,10 +165,12 @@ public:
     }
     ~minConflicts() {
         delete[] currState;
-        delete[] conflicts;
+        delete[] rowCount;
+        delete[] diagCount;
+        delete[] antiDiagCount;
     }
 };
 
 int main() {
-    minConflicts temp(100, 100000);
+    minConflicts temp(8, 100000);
 }
