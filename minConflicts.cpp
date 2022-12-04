@@ -24,6 +24,7 @@ public:
         bool solved = solve(max_steps);
         end = clock();
         double time_taken = double(end - start) / double(CLOCKS_PER_SEC);
+        // if solution is found print the board and time
         if (solved) {
             cout << "Solved board of size " << n << " in: " << time_taken << " seconds\n";
             cout << "Printing time: ";
@@ -32,7 +33,7 @@ public:
             end = clock();
             cout << double(end - start) / double(CLOCKS_PER_SEC) << " seconds\n";
         } else
-
+            // if the board was not solved
             cout << "could not solve: " << time_taken << " seconds\n";
     }
     bool solve(int max_steps) {
