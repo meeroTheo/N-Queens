@@ -24,6 +24,7 @@ public:
         bool solved = solve(max_steps);
         end = clock();
         double time_taken = double(end - start) / double(CLOCKS_PER_SEC);
+        // if solution is found print the board and time
         if (solved) {
             cout << "Solved board of size " << n << " in: " << time_taken << " seconds\n";
             /*
@@ -36,7 +37,7 @@ public:
            //printState();
            cout << "Is solution? = " << checkSolution() << endl;
         } else
-
+            // if the board was not solved
             cout << "could not solve: " << time_taken << " seconds\n";
     }
     bool solve(int max_steps) {
@@ -51,9 +52,11 @@ public:
             rowVariable = minConflictPos(colVariable); // value (row) which minimizes conflicts
             updateConflicts(currState[colVariable], rowVariable, colVariable);
         }
+        // no solution was found, return false
         return false;
     }
 
+    // updates the number of conflicts
     void updateConflicts(int oldRow, int newRow, int col) {
         rowCount[currState[col]]--;
         diagCount[col + currState[col]]--;
@@ -64,6 +67,7 @@ public:
         diagCount[col + currState[col]]++;
         antiDiagCount[col - currState[col] + n - 1]++;
         numConflicts = 0;
+        // counts the number of conflicts after the update
         for (int i = 0; i < n; i++) {
             numConflicts += rowCount[currState[i]] - 1 + diagCount[i + currState[i]] - 1 + antiDiagCount[i - currState[i] + n - 1] - 1;
         }
@@ -106,6 +110,7 @@ public:
                 auto rng = std::default_random_engine{rd()};
                 std::shuffle(temp.begin(), temp.end(), rng);
             }
+            // push the val into temp vector
             val = temp[0];
         }
         delete[] rowConflicts;
@@ -167,6 +172,7 @@ public:
             for (int j = 0; j < n; j++) {
                 if (currState[j] == i) {
                     // Writing to file
+                    // Prints the positions of the Queens 
                     outputFile << "Q"
                                << " ";
                 } else {
