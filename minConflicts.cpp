@@ -26,11 +26,15 @@ public:
         double time_taken = double(end - start) / double(CLOCKS_PER_SEC);
         if (solved) {
             cout << "Solved board of size " << n << " in: " << time_taken << " seconds\n";
+            /*
             cout << "Printing time: ";
             start = clock();
             printBoard();
             end = clock();
             cout << double(end - start) / double(CLOCKS_PER_SEC) << " seconds\n";
+            */
+           //printState();
+           cout << "Is solution? = " << checkSolution() << endl;
         } else
 
             cout << "could not solve: " << time_taken << " seconds\n";
@@ -39,8 +43,10 @@ public:
         int colVariable, rowVariable;
         initialState(); // initial complete assignment for csp
         for (int i = 1; i < max_steps; i++) {
-            if (numConflicts == 0)
-                return true;                           // current state is a solution for csp
+            if (numConflicts == 0){
+                cout << "Steps: " << i << endl;
+                return true; 
+                }                          // current state is a solution for csp
             colVariable = colPosition();               // randomly chosen conflicted variable from csp
             rowVariable = minConflictPos(colVariable); // value (row) which minimizes conflicts
             updateConflicts(currState[colVariable], rowVariable, colVariable);
@@ -109,12 +115,12 @@ public:
 
     int colPosition() {
         // random column position given the position has more than 0 conflicts
-        int pos = rand() % n,count=0;
+        int pos = rand() % n, count = 0;
         while (attacks(currState[pos], pos) <= 0) {
             pos = rand() % n;
             count++;
-            if (count >n){
-                for (int i=0;i<n;i++){
+            if (count > n) {
+                for (int i = 0; i < n; i++) {
                     if (attacks(currState[i], i) > 0)
                         return i;
                 }
@@ -140,14 +146,17 @@ public:
     }
     int attacks(int row, int col) {
         return rowCount[row] - 1 + diagCount[col + row] - 1 + antiDiagCount[col - row + n - 1] - 1;
-        ;
     }
-    void printState(int n) {
+    void printState() {
         // Prints the state in an array form where each index represents board index
         // Each value represents the row the queen is on
+        cout << "[";
         for (int i = 0; i < n; i++) {
-            cout << currState[i] << " ";
+            cout << currState[i];
+            if (i+1 !=n)
+                cout << ",";
         }
+        cout << "]";
         cout << "\n";
     }
 
@@ -170,6 +179,28 @@ public:
         // Close file
         outputFile.close();
     }
+
+    bool checkSolution(){
+        numConflicts=0;
+        for (int i = 0; i < n; i++) {
+            rowCount[currState[i]]=0;
+            diagCount[i + currState[i]]=0;
+            antiDiagCount[i - currState[i] + n - 1]=0;
+        }
+        for (int i = 0; i < n; i++) {
+            rowCount[currState[i]]++;
+            diagCount[i + currState[i]]++;
+            antiDiagCount[i - currState[i] + n - 1]++;
+        }
+        // count the number of conflicts
+        for (int i = 0; i < n; i++) {
+            numConflicts += rowCount[currState[i]] - 1 + diagCount[i + currState[i]] - 1 + antiDiagCount[i - currState[i] + n - 1] - 1;
+        }
+        if(numConflicts==0){
+            return true;
+        }
+        return false;
+    }
     ~minConflicts() {
         delete[] currState;
         delete[] rowCount;
@@ -179,5 +210,5 @@ public:
 };
 
 int main() {
-    minConflicts temp(8, 100000);
+    minConflicts temp(10000, 1000000);
 }
